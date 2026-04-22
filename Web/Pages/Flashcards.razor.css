@@ -1,0 +1,241 @@
+/* ── Header ─────────────────────────────────────── */
+.flashcards-header-row {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 1rem;
+	flex-wrap: wrap;
+}
+
+.flashcards-header-actions {
+	display: flex;
+	gap: 0.5rem;
+}
+
+.flashcards-count {
+	margin: 0.25rem 0 0;
+	font-size: 0.875rem;
+	color: #666;
+}
+
+/* ── No flashcards state ─────────────────────────── */
+.no-flashcards {
+	text-align: center;
+	padding: 3rem 1rem;
+	color: #555;
+}
+
+.no-flashcards-hint {
+	font-size: 0.875rem;
+	color: #888;
+	margin-top: 0.5rem;
+}
+
+/* ── Editor Panel ────────────────────────────────── */
+.flashcard-editor-panel {
+	background: #f9f9f9;
+	border: 1px solid #e0e0e0;
+	border-radius: 8px;
+	padding: 1.5rem;
+	margin-bottom: 1.5rem;
+}
+
+.flashcard-editor-panel h3 {
+	margin: 0 0 1rem;
+	font-size: 1.1rem;
+}
+
+.editor-section {
+	margin-bottom: 1rem;
+}
+
+.editor-section-inline {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+}
+
+.editor-label {
+	display: block;
+	font-size: 0.875rem;
+	font-weight: 600;
+	color: #333;
+	margin-bottom: 0.35rem;
+}
+
+.formula-hint {
+	font-weight: 400;
+	font-size: 0.8rem;
+	color: #888;
+	margin-left: 0.5rem;
+}
+
+.chart-toggle-row {
+	margin: 0.75rem 0;
+}
+
+.chart-builder {
+	background: #fff;
+	border: 1px dashed #bbb;
+	border-radius: 6px;
+	padding: 1rem;
+	margin-bottom: 1rem;
+}
+
+.chart-builder h4 {
+	margin: 0 0 0.75rem;
+	font-size: 0.95rem;
+}
+
+.chart-builder-grid {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 0.75rem;
+}
+
+.chart-builder-field {
+	display: flex;
+	flex-direction: column;
+	gap: 0.25rem;
+}
+
+.chart-builder-field label {
+	font-size: 0.8rem;
+	color: #555;
+}
+
+.chart-builder-field-wide {
+	grid-column: 1 / -1;
+}
+
+.editor-error {
+	color: #d32f2f;
+	font-size: 0.875rem;
+	margin: 0.25rem 0;
+}
+
+.editor-actions {
+	display: flex;
+	gap: 0.5rem;
+	margin-top: 1rem;
+}
+
+/* ── Cards Grid ──────────────────────────────────── */
+.flashcards-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+	gap: 1.25rem;
+	padding: 0.5rem 0 1.5rem;
+}
+
+/* ── Individual Card ─────────────────────────────── */
+.fc-card {
+	display: flex;
+	flex-direction: column;
+	border-radius: 10px;
+	box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+	cursor: pointer;
+	transition: box-shadow 0.2s, transform 0.1s;
+	overflow: hidden;
+	min-height: 180px;
+}
+
+.fc-card:hover {
+	box-shadow: 0 4px 16px rgba(0,0,0,0.16);
+	transform: translateY(-2px);
+}
+
+.fc-card-front {
+	background: #ffffff;
+	border-top: 4px solid #4e79a7;
+}
+
+.fc-card-back {
+	background: #e8f0fc;
+	border-top: 4px solid #2a6abf;
+}
+
+/* ── Card Side Bar ───────────────────────────────── */
+.fc-side-bar {
+	padding: 0.35rem 0.75rem 0;
+}
+
+.fc-label {
+	display: inline-block;
+	font-size: 0.7rem;
+	font-weight: 700;
+	letter-spacing: 0.05em;
+	padding: 0.15rem 0.5rem;
+	border-radius: 4px;
+}
+
+.fc-label-front {
+	background: #e3eef8;
+	color: #2c5f8a;
+}
+
+.fc-label-back {
+	background: #cde0f8;
+	color: #17468a;
+}
+
+/* ── Card Body ───────────────────────────────────── */
+.fc-body {
+	flex: 1;
+	padding: 0.75rem 1rem;
+	overflow: hidden;
+}
+
+.fc-content {
+	font-size: 0.9rem;
+	line-height: 1.6;
+	overflow-wrap: break-word;
+}
+
+/* ── Chart Canvas ────────────────────────────────── */
+.fc-chart {
+	margin-top: 0.75rem;
+	padding-top: 0.5rem;
+	border-top: 1px solid #b3cef7;
+}
+
+.fc-chart canvas {
+	max-height: 220px;
+	width: 100% !important;
+}
+
+/* ── Tags ────────────────────────────────────────── */
+.fc-tags {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.3rem;
+	margin-top: 0.6rem;
+}
+
+.fc-tag {
+	font-size: 0.72rem;
+	background: #eef2ff;
+	color: #4455aa;
+	border-radius: 10px;
+	padding: 0.1rem 0.5rem;
+}
+
+/* ── Card Footer ─────────────────────────────────── */
+.fc-footer {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 0.4rem 0.75rem;
+	border-top: 1px solid rgba(0,0,0,0.06);
+	background: rgba(0,0,0,0.02);
+}
+
+.fc-flip-hint {
+	font-size: 0.72rem;
+	color: #999;
+}
+
+.fc-action-buttons {
+	display: flex;
+	gap: 0.15rem;
+}

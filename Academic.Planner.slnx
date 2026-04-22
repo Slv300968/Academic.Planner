@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="Api/Api.csproj" />
+  <Project Path="ApiClient/ApiClient.csproj" />
+  <Project Path="Data/Data.csproj" />
+  <Project Path="Models/Models.csproj" />
+  <Project Path="Web/Web.csproj" />
+</Solution>

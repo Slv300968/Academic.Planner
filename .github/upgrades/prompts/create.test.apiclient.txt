@@ -1,0 +1,9 @@
+Create test for ApiClient project. The ApiClient project calls the methods of Api, who calls Data, who use Models. This is the best way to test the logic of the entire app.
+The controllers are protected with [Authorize]. Pass login data, like in Web project. builder.Services.AddHttpClient(Utilities.HttpClientName, client => client.BaseAddress = new Uri(apiUrl)).AddHttpMessageHandler<LoginApiHandler>();
+Review models decorators to creat models with all fields filled.
+ 
+Test the methods Insert, Update and Delete only if MRCAppSettings:Environment is different than PROD
+ 
+Methods Insert and Delete has to be merged in one method, to delete the item recently created
+ 
+In class AppraisalTypeServiceTests the name of the variable is _service, which is not standard.

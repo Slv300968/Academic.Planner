@@ -1,0 +1,115 @@
+@page "/materias/{SubjectId:int}"
+@namespace Web.Pages
+<PageTitle>@(subject?.Name ?? "Materia") - Academic Planner</PageTitle>
+
+@if (isLoading)
+{
+	<TelerikLoaderContainer Visible="true" Text="Cargando..." />
+}
+else if (subject is not null)
+{
+	<div class="page-header" style="border-left: 4px solid @subject.Color">
+		<div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:0.5rem;">
+			<div>
+				<h1>@subject.Name</h1>
+				<p>@subject.Description</p>
+			</div>
+			<TelerikButton ThemeColor="secondary" OnClick="@GoToFlashcards">🃏 Flashcards</TelerikButton>
+		</div>
+	</div>
+
+	<TelerikGrid Data="@topics" Pageable="true" PageSize="20" Sortable="true" OnRowClick="@((GridRowClickEventArgs args) => OpenTopicDetail((Topic)args.Item))">
+		<GridColumns>
+			<GridColumn Field="@nameof(Topic.Name)" Title="Tema" />
+			<GridColumn Field="@nameof(Topic.Status)" Title="Estado" Width="150px">
+				<Template>
+					@{
+						Topic topic = (Topic)context;
+					}
+					<TelerikBadge ThemeColor="@GetStatusColor(topic.Status)">@topic.Status</TelerikBadge>
+				</Template>
+			</GridColumn>
+			<GridCommandColumn Width="310px">
+				<GridCommandButton OnClick="@((args) => ChangeStatus((Topic)args.Item, Helper.STATUS_PENDING))" ThemeColor="base" Size="@ThemeConstants.Button.Size.Small">Pendiente</GridCommandButton>
+				<GridCommandButton OnClick="@((args) => ChangeStatus((Topic)args.Item, Helper.STATUS_IN_PROGRESS))" ThemeColor="warning" Size="@ThemeConstants.Button.Size.Small">En Progreso</GridCommandButton>
+				<GridCommandButton OnClick="@((args) => ChangeStatus((Topic)args.Item, Helper.STATUS_MASTERED))" ThemeColor="success" Size="@ThemeConstants.Button.Size.Small">Dominado</GridCommandButton>
+			</GridCommandColumn>
+		</GridColumns>
+	</TelerikGrid>
+
+	@if (showTopicDetail && selectedTopic is not null)
+	{
+		<div class="topic-detail-panel">
+			<div class="topic-detail-header">
+				<h2>@selectedTopic.Name</h2>
+				<TelerikButton ThemeColor="base" OnClick="@CloseTopicDetail">✕ Cerrar</TelerikButton>
+			</div>
+
+			<h3>📝 Mis Apuntes</h3>
+			<TelerikTextArea @bind-Value="@selectedTopic.Notes" Rows="6" Width="100%" />
+			<TelerikButton ThemeColor="primary" OnClick="@SaveNotes" Enabled="@(!savingNotes)">
+				@(savingNotes ? "Guardando..." : "Guardar Apuntes")
+			</TelerikButton>
+
+			<hr />
+
+			<div style="display:flex; justify-content:space-between; align-items:center;">
+				<h3>🔗 Material de Estudio</h3>
+				<TelerikButton ThemeColor="success" Size="@ThemeConstants.Button.Size.Small" OnClick="@ToggleAddResource">+ Agregar</TelerikButton>
+			</div>
+
+			@if (showAddResource)
+			{
+				<div class="add-resource-form">
+					<TelerikTextBox @bind-Value="@newResource.Title" Placeholder="Título del recurso" Width="100%" />
+					<TelerikTextBox @bind-Value="@newResource.Url" Placeholder="URL (https://...)" Width="100%" />
+					<TelerikDropDownList Data="@resourceTypes" @bind-Value="@newResource.ResourceType" Width="150px" />
+					<TelerikButton ThemeColor="primary" OnClick="@AddResource">Agregar</TelerikButton>
+					<TelerikButton ThemeColor="base" OnClick="@ToggleAddResource">Cancelar</TelerikButton>
+				</div>
+				@if (!string.IsNullOrEmpty(addResourceError))
+				{
+					<p style="color:red; margin-top:4px;">@addResourceError</p>
+				}
+			}
+
+			@if (selectedTopicResources.Count == 0)
+			{
+				<p class="no-resources">No hay material agregado aún.</p>
+			}
+			else
+			{
+				<ul class="resource-list">
+					@foreach (StudyResource resource in selectedTopicResources)
+					{
+						<li class="resource-item">
+							<div class="resource-item-header">
+								<span class="resource-icon">@GetResourceIcon(resource.ResourceType)</span>
+								<span class="resource-type">@resource.ResourceType</span>
+								@if (!string.IsNullOrEmpty(resource.Url))
+								{
+									<a href="@resource.Url" target="_blank" class="resource-link">@resource.Title</a>
+								}
+								else
+								{
+									<span class="resource-link">@resource.Title</span>
+								}
+								<TelerikButton Icon="@SvgIcon.ChevronDown" ThemeColor="base" FillMode="@ThemeConstants.Button.FillMode.Flat" Size="@ThemeConstants.Button.Size.Small" OnClick="@(() => ToggleResourceNotes(resource.Id))" Title="Ver/editar notas" />
+								<TelerikButton Icon="@SvgIcon.Trash" ThemeColor="error" FillMode="@ThemeConstants.Button.FillMode.Flat" Size="@ThemeConstants.Button.Size.Small" OnClick="@(() => DeleteResource(resource))" />
+							</div>
+							@if (expandedResourceId == resource.Id)
+							{
+								<div class="resource-notes">
+									<TelerikTextArea @bind-Value="@resource.Notes" Rows="8" Width="100%" Placeholder="Notas, resumen, apuntes del material..." />
+									<TelerikButton ThemeColor="primary" Size="@ThemeConstants.Button.Size.Small" OnClick="@(() => SaveResourceNotes(resource))" Enabled="@(!savingResourceNotes)">
+										@(savingResourceNotes ? "Guardando..." : "Guardar Notas")
+									</TelerikButton>
+								</div>
+							}
+						</li>
+					}
+				</ul>
+			}
+		</div>
+	}
+}

@@ -1,0 +1,221 @@
+@page "/calendario"
+@namespace Web.Pages
+<PageTitle>Planner de Estudio - Academic Planner</PageTitle>
+
+@if (isLoading)
+{
+<TelerikLoaderContainer Visible="true" Text="Cargando materias..." />
+}
+else
+{
+<div class="page-header">
+<h1>Planner de Estudio</h1>
+<p>Distribucion sugerida de materias segun el temario pendiente</p>
+</div>
+
+<div class="planner-config">
+<div class="planner-config-fields">
+<div class="form-group">
+<label>Fecha de inicio</label>
+<TelerikDatePicker @bind-Value="@startDate" Width="160px" />
+</div>
+<div class="form-group">
+<label>Fecha de termino</label>
+<TelerikDatePicker @bind-Value="@endDate" Width="160px" />
+</div>
+<div class="form-group">
+<label>Horas de estudio por dia</label>
+<TelerikNumericTextBox @bind-Value="@hoursPerDay" Min="1" Max="12" Width="80px" />
+</div>
+<div class="form-group">
+<label>Dias de repaso final</label>
+<TelerikNumericTextBox @bind-Value="@reviewPeriodDays" Min="3" Max="14" Width="80px" />
+</div>
+<div class="form-group form-group-check">
+<TelerikCheckBox @bind-Value="@weekdaysOnly" Id="chkWeekdays" />
+<label for="chkWeekdays">Solo dias habiles (Lun-Vie)</label>
+</div>
+</div>
+<TelerikButton ThemeColor="primary" OnClick="@GeneratePlan">Generar Plan</TelerikButton>
+</div>
+
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+<div class="planner-error">@errorMessage</div>
+}
+
+@if (planGenerated)
+{
+<div class="planner-summary-bar">
+<span><strong>@totalStudyDays</strong> dias de estudio</span>
+<span><strong>@(totalStudyDays * hoursPerDay)</strong> horas totales</span>
+<span>@DateOnly.FromDateTime(startDate).ToString("dd MMM yyyy") al @DateOnly.FromDateTime(endDate).ToString("dd MMM yyyy")</span>
+<span><strong>@planColumns.Count</strong> materias activas</span>
+</div>
+
+<div class="view-tabs">
+<button class="view-tab @(activeView == "gantt" ? "active" : "")" @onclick='() => activeView = "gantt"'>Cronograma</button>
+<button class="view-tab @(activeView == "board" ? "active" : "")" @onclick='() => activeView = "board"'>Tablero</button>
+<button class="view-tab @(activeView == "calendar" ? "active" : "")" @onclick='() => activeView = "calendar"'>Calendario</button>
+</div>
+
+@if (activeView == "gantt")
+{
+<div class="msp-wrapper">
+<div class="msp-scroll">
+<table class="msp-table">
+<colgroup>
+<col class="col-name" />
+<col class="col-stat" />
+<col class="col-stat" />
+<col class="col-stat" />
+<col class="col-date" />
+<col class="col-date" />
+<col class="col-chart" />
+</colgroup>
+<thead>
+<tr class="msp-head-row">
+<th>Materia</th>
+<th>Temas</th>
+<th>Dias</th>
+<th>Horas</th>
+<th>Inicio</th>
+<th>Fin</th>
+<th class="msp-ruler-cell" style="padding:0;width:700px;overflow:hidden;vertical-align:bottom;">
+<div style="width:700px;height:52px;display:flex;flex-direction:column;">
+<div style="display:flex;width:700px;height:26px;overflow:hidden;border-bottom:1px solid #dce8f8;">
+@foreach (GanttMonth month in ganttMonths)
+{
+<div style="flex-shrink:0;width:@(month.WidthPercent.ToString("F2", System.Globalization.CultureInfo.InvariantCulture))%;box-sizing:border-box;padding:4px 6px;overflow:hidden;white-space:nowrap;font-size:0.72rem;font-weight:700;color:#0d2b5e;border-right:1px solid #dce8f8;">@month.Label</div>
+}
+</div>
+<div style="display:flex;width:700px;height:26px;overflow:hidden;background:#f4f7fd;">
+@foreach (GanttWeek week in ganttWeeks)
+{
+<div style="flex-shrink:0;width:@(week.WidthPercent.ToString("F2", System.Globalization.CultureInfo.InvariantCulture))%;box-sizing:border-box;text-align:center;padding:3px 2px;overflow:hidden;white-space:nowrap;font-size:0.67rem;color:#8a97b0;border-right:1px solid #e8eef8;">@week.Label</div>
+}
+</div>
+</div>
+</th>
+</tr>
+</thead>
+<tbody>
+@foreach (GanttRow row in ganttRows)
+{
+<tr class="msp-row">
+<td class="msp-td-name">
+<span class="msp-dot" style="background:@row.Color"></span>
+@row.SubjectName
+</td>
+<td class="msp-td-num">@row.PendingTopics</td>
+<td class="msp-td-num">@row.TotalDays</td>
+<td class="msp-td-num">@(row.TotalDays * hoursPerDay)</td>
+<td class="msp-td-date">@row.StartDate.ToString("dd MMM")</td>
+<td class="msp-td-date">@row.EndDate.ToString("dd MMM")</td>
+<td class="msp-td-chart">
+@if (todayPercent >= 0)
+{
+<div class="msp-today" style="left:@todayPercent.ToString("F2", System.Globalization.CultureInfo.InvariantCulture)%"></div>
+}
+<div class="msp-bar"
+style="left:@row.OffsetPercent.ToString("F2", System.Globalization.CultureInfo.InvariantCulture)%; width:@row.WidthPercent.ToString("F2", System.Globalization.CultureInfo.InvariantCulture)%; background:@row.Color"
+title="@row.SubjectName: @row.StartDate.ToString("dd MMM") al @row.EndDate.ToString("dd MMM") (@row.TotalDays dias, @(row.TotalDays * hoursPerDay) hrs)">
+<span class="msp-bar-label">@row.SubjectShort</span>
+</div>
+</td>
+</tr>
+}
+</tbody>
+</table>
+</div>
+</div>
+}
+else if (activeView == "board")
+{
+<div class="planner-board">
+@foreach (PlanColumn col in planColumns)
+{
+<div class="board-column">
+<div class="column-header" style="border-top: 4px solid @col.Color; background: @col.BackgroundColor">
+<div class="column-header-top">
+<span class="column-title">@col.SubjectName</span>
+<span class="column-badge" style="background: @col.Color">@col.Cards.Count sem.</span>
+</div>
+<div class="column-meta">
+<span class="meta-chip">@col.TotalDays dias</span>
+<span class="meta-chip">@(col.TotalDays * hoursPerDay) hrs</span>
+<span class="meta-chip">@col.PendingTopics temas</span>
+</div>
+<div class="column-dates">@col.StartDate.ToString("dd MMM") al @col.EndDate.ToString("dd MMM")</div>
+</div>
+<div class="column-cards">
+@foreach (PlanCard card in col.Cards)
+{
+<div class="plan-card">
+<div class="card-bar" style="background: @col.Color"></div>
+<div class="card-body">
+<div class="card-title">Semana @card.WeekNumber</div>
+<div class="card-dates">@card.WeekStart.ToString("dd MMM") al @card.WeekEnd.ToString("dd MMM")</div>
+<div class="card-chips">
+<span class="card-chip">@card.Hours hrs</span>
+<span class="card-chip">~@card.TopicsEstimated.ToString("F1") temas</span>
+<span class="card-chip">@card.DaysCount dias</span>
+</div>
+</div>
+</div>
+}
+</div>
+</div>
+}
+</div>
+}
+else
+{
+<div class="cal-wrapper">
+<div class="cal-legend">
+<span class="cal-legend-item"><span class="cal-legend-dot nuevo"></span>Material nuevo</span>
+<span class="cal-legend-item"><span class="cal-legend-dot repaso"></span>Repaso</span>
+<span class="cal-legend-item cal-legend-review-week">Semanas de repaso final</span>
+</div>
+@foreach (IGrouping<int, StudyDay> weekGroup in calendarDays
+.GroupBy(d => d.Date.Year * 100 + System.Globalization.ISOWeek.GetWeekOfYear(d.Date.ToDateTime(TimeOnly.MinValue)))
+.OrderBy(g => g.Key))
+{
+bool isReviewWeek = weekGroup.All(d => d.Phase == "Repaso");
+<div class="cal-week @(isReviewWeek ? "cal-week-review" : "")">
+<div class="cal-week-header">
+@if (isReviewWeek) { <span class="cal-phase-badge">Repaso Final</span> }
+Semana del @weekGroup.OrderBy(d => d.Date).First().Date.ToString("dd MMM") al @weekGroup.OrderBy(d => d.Date).Last().Date.ToString("dd MMM")
+</div>
+<div class="cal-days">
+@foreach (StudyDay day in weekGroup.OrderBy(d => d.Date))
+{
+bool isToday = day.Date == DateOnly.FromDateTime(DateTime.Today);
+<div class="cal-day @(isToday ? "cal-day-today" : "")">
+<div class="cal-day-header @(isReviewWeek ? "cal-day-header-review" : "")">
+<span class="cal-day-name">@day.Date.ToString("ddd")</span>
+<span class="cal-day-num">@day.Date.Day</span>
+</div>
+<div class="cal-day-slots">
+@foreach (StudySlot slot in day.Slots)
+{
+<div class="cal-slot @(slot.SlotType == "Repaso" ? "cal-slot-review" : "")" style="border-left:3px solid @slot.Color; background:@HexToRgba(slot.Color, 0.07)">
+<span class="cal-slot-dot" style="background:@slot.Color"></span>
+<span class="cal-slot-subject">@GetSubjectShort(slot.SubjectName)</span>
+<span class="cal-slot-hours">@slot.Hours.ToString("F0")h</span>
+</div>
+}
+@if (!day.Slots.Any())
+{
+<div class="cal-slot-empty">-</div>
+}
+</div>
+</div>
+}
+</div>
+</div>
+}
+</div>
+}
+}
+}

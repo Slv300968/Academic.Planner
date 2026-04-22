@@ -1,0 +1,69 @@
+@page "/simulador"
+@namespace Web.Pages
+<PageTitle>Simulador - Academic Planner</PageTitle>
+<h1>Simulador de Examen</h1>
+
+@if (!quizStarted)
+{
+	<div class="quiz-setup">
+		<h2>Configura tu práctica</h2>
+		<div class="form-group">
+			<label>Número de preguntas:</label>
+			<TelerikNumericTextBox @bind-Value="@questionCount" Min="5" Max="50" />
+		</div>
+		<TelerikButton ThemeColor="primary" OnClick="@StartQuiz">Iniciar Simulacro</TelerikButton>
+	</div>
+}
+else if (quizFinished)
+{
+	<div class="quiz-results">
+		<h2>¡Simulacro terminado!</h2>
+		<div class="result-score">@correctAnswers / @questions.Count correctas</div>
+		<div class="result-percentage">@Math.Round((double)correctAnswers / questions.Count * 100, 1)%</div>
+		<TelerikButton ThemeColor="primary" OnClick="@RestartQuiz">Nuevo Simulacro</TelerikButton>
+	</div>
+}
+else if (currentQuestion is not null)
+{
+	<div class="quiz-progress">
+		<p>Pregunta @(currentIndex + 1) de @questions.Count</p>
+		<TelerikProgressBar Value="@((double)(currentIndex + 1) / questions.Count * 100)" Max="100" />
+	</div>
+	<div class="question-card">
+		<p class="question-text">@currentQuestion.QuestionText</p>
+		<div class="options">
+			<button class="option @GetOptionClass("A")" @onclick="@(() => SelectAnswer("A"))">A) @currentQuestion.OptionA</button>
+			<button class="option @GetOptionClass("B")" @onclick="@(() => SelectAnswer("B"))">B) @currentQuestion.OptionB</button>
+			<button class="option @GetOptionClass("C")" @onclick="@(() => SelectAnswer("C"))">C) @currentQuestion.OptionC</button>
+			<button class="option @GetOptionClass("D")" @onclick="@(() => SelectAnswer("D"))">D) @currentQuestion.OptionD</button>
+			@if (!string.IsNullOrEmpty(currentQuestion.OptionE))
+			{
+				<button class="option @GetOptionClass("E")" @onclick="@(() => SelectAnswer("E"))">E) @currentQuestion.OptionE</button>
+			}
+		</div>
+		@if (selectedAnswer is not null)
+		{
+			<div class="explanation">
+				@if (selectedAnswer == currentQuestion.CorrectOption)
+				{
+					<p class="correct">✅ ¡Correcto!</p>
+				}
+				else
+				{
+					<p class="incorrect">❌ Incorrecto. La respuesta correcta es @currentQuestion.CorrectOption</p>
+				}
+				@if (!string.IsNullOrEmpty(currentQuestion.Explanation))
+				{
+					<p>@currentQuestion.Explanation</p>
+				}
+				<TelerikButton ThemeColor="primary" OnClick="@NextQuestion">
+					@(currentIndex < questions.Count - 1 ? "Siguiente →" : "Ver Resultados")
+				</TelerikButton>
+			</div>
+		}
+	</div>
+}
+else
+{
+	<p>No hay preguntas disponibles. Agrega preguntas desde los detalles de cada tema.</p>
+}

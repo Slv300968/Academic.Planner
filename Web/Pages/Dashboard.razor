@@ -1,0 +1,54 @@
+@page "/"
+@namespace Web.Pages
+<PageTitle>Dashboard - Academic Planner</PageTitle>
+<h1>Panel de Control</h1>
+
+@if (isLoading)
+{
+	<TelerikLoaderContainer Visible="true" Text="Cargando..." />
+}
+else if (stats is not null)
+{
+	<div class="stats-grid">
+		<div class="stat-card">
+			<div class="stat-number">@stats.TotalTopics</div>
+			<div class="stat-label">Temas Totales</div>
+		</div>
+		<div class="stat-card pending">
+			<div class="stat-number">@stats.PendingTopics</div>
+			<div class="stat-label">Pendientes</div>
+		</div>
+		<div class="stat-card in-progress">
+			<div class="stat-number">@stats.InProgressTopics</div>
+			<div class="stat-label">En Progreso</div>
+		</div>
+		<div class="stat-card mastered">
+			<div class="stat-number">@stats.MasteredTopics</div>
+			<div class="stat-label">Dominados</div>
+		</div>
+	</div>
+
+	<div class="progress-section">
+		<h2>Progreso Global: @stats.GlobalProgressPercentage%</h2>
+		<TelerikProgressBar Value="@stats.GlobalProgressPercentage" Max="100" />
+	</div>
+
+	<div class="subjects-progress">
+		<h2>Progreso por Materia</h2>
+		@foreach (SubjectProgress subject in stats.SubjectProgressList)
+		{
+			<div class="subject-progress-item">
+				<div class="subject-header" style="border-left: 4px solid @subject.Color">
+					<span class="subject-name">@subject.Name</span>
+					<span class="subject-percentage">@subject.ProgressPercentage%</span>
+				</div>
+				<TelerikProgressBar Value="@subject.ProgressPercentage" Max="100" />
+				<div class="topic-counts">
+					<span class="pending">@subject.PendingTopics pendientes</span>
+					<span class="in-progress">@subject.InProgressTopics en progreso</span>
+					<span class="mastered">@subject.MasteredTopics dominados</span>
+				</div>
+			</div>
+		}
+	</div>
+}

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Academic Planner - UNAM Área 2</title>
+    <base href="/" />
+    <link rel="preload" id="webassembly" />
+    <link rel="stylesheet" href="_content/Telerik.UI.for.Blazor/css/kendo-theme-default/all.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous">
+    <link rel="stylesheet" href="css/app.css" />
+    <link rel="icon" type="image/png" href="favicon.png" />
+    <link href="Web.styles.css" rel="stylesheet" />
+    <script type="importmap"></script>
+</head>
+
+<body>
+    <div id="app">
+        <svg class="loading-progress">
+            <circle r="40%" cx="50%" cy="50%" />
+            <circle r="40%" cx="50%" cy="50%" />
+        </svg>
+        <div class="loading-progress-text"></div>
+    </div>
+
+    <div id="blazor-error-ui">
+        Ha ocurrido un error.
+        <a href="." class="reload">Recargar</a>
+        <span class="dismiss">🗙</span>
+    </div>
+    <script src="_framework/blazor.webassembly#[.{fingerprint}].js"></script>
+    <script src="_content/Telerik.UI.for.Blazor/js/telerik-blazor.js" defer></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js" crossorigin="anonymous"></script>
+    <script>
+        window.flashcardHelpers = {
+            _charts: {},
+            renderKatex: function () {
+                if (window.renderMathInElement) {
+                    renderMathInElement(document.body, {
+                        delimiters: [
+                            { left: '$$', right: '$$', display: true },
+                            { left: '$', right: '$', display: false }
+                        ],
+                        throwOnError: false
+                    });
+                }
+            },
+            renderChart: function (canvasId, type, categories, values, title, seriesName) {
+                var canvas = document.getElementById(canvasId);
+                if (!canvas) return;
+                if (window.flashcardHelpers._charts[canvasId]) {
+                    window.flashcardHelpers._charts[canvasId].destroy();
+                    delete window.flashcardHelpers._charts[canvasId];
+                }
+                var isArea = type === 'Area';
+                var chartType = isArea ? 'line' : type.toLowerCase() === 'donut' ? 'doughnut' : type.toLowerCase();
+                var palette = ['#4e79a7','#f28e2b','#e15759','#76b7b2','#59a14f','#edc948','#b07aa1','#ff9da7','#9c755f','#bab0ac'];
+                var isPolar = chartType === 'pie' || chartType === 'doughnut';
+                window.flashcardHelpers._charts[canvasId] = new Chart(canvas, {
+                    type: chartType,
+                    data: {
+                        labels: categories,
+                        datasets: [{
+                            label: seriesName || '',
+                            data: values,
+                            fill: isArea,
+                            backgroundColor: isPolar ? palette : (chartType === 'bar' ? '#4e79a7' : 'rgba(78,121,167,0.3)'),
+                            borderColor: isPolar ? palette : '#4e79a7',
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            title: { display: !!title, text: title, font: { size: 14 } },
+                            legend: { display: isPolar }
+                        },
+                        scales: isPolar ? {} : { y: { beginAtZero: true } }
+                    }
+                });
+            }
+        };
+    </script>
+</body>
+
+</html>

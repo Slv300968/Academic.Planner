@@ -1,0 +1,29 @@
+@page "/materias"
+@namespace Web.Pages
+<PageTitle>Materias - Academic Planner</PageTitle>
+<h1>Materias del Examen UNAM Área 2</h1>
+
+@if (isLoading)
+{
+	<TelerikLoaderContainer Visible="true" Text="Cargando..." />
+}
+else
+{
+	<div class="subjects-cards">
+		@foreach (SubjectProgress subject in subjectProgressList)
+		{
+			<div class="subject-card" style="border-top: 4px solid @subject.Color">
+				<h3>@subject.Name</h3>
+				<TelerikProgressBar Value="@subject.ProgressPercentage" Max="100" />
+				<div class="card-stats">
+					<span>@subject.TotalTopics temas</span>
+					<span>@subject.ProgressPercentage% completado</span>
+				</div>
+				<div class="card-actions">
+					<NavLink class="btn-view" href="@($"materias/{subject.Id}")">📖 Ver temas →</NavLink>
+					<NavLink class="btn-flashcards" href="@($"materias/{subject.Id}/flashcards")">🃏 Flashcards</NavLink>
+				</div>
+			</div>
+		}
+	</div>
+}

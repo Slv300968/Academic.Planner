@@ -1,0 +1,170 @@
+@page "/materias/{SubjectId:int}/flashcards"
+@namespace Web.Pages
+
+<PageTitle>Flashcards — @(subject?.Name ?? "Materia")</PageTitle>
+
+@if (isLoading)
+{
+	<TelerikLoaderContainer Visible="true" Text="Cargando..." />
+}
+else
+{
+	<div class="page-header" style="border-left: 4px solid @(subject?.Color ?? "#ccc")">
+		<div class="flashcards-header-row">
+			<h1>🃏 Flashcards — @subject?.Name</h1>
+			<div class="flashcards-header-actions">
+				<TelerikButton ThemeColor="base" OnClick="@GoBack">← Volver a Temas</TelerikButton>
+				<TelerikButton ThemeColor="primary" OnClick="@OpenNewCard">+ Nueva Tarjeta</TelerikButton>
+			</div>
+		</div>
+		@if (flashcards.Count > 0)
+		{
+			<p class="flashcards-count">@flashcards.Count tarjeta@(flashcards.Count != 1 ? "s" : "") · Haz clic en una tarjeta para ver el reverso</p>
+		}
+	</div>
+
+	@if (showEditor)
+	{
+		<div class="flashcard-editor-panel">
+			<h3>@(editingFlashcard.Id == 0 ? "Nueva Tarjeta" : "Editar Tarjeta")</h3>
+
+			<div class="editor-section">
+				<label class="editor-label">Frente — pregunta o concepto: <span class="formula-hint">Usa $fórmula$ para LaTeX (ej: $x^2 + y^2 = r^2$)</span></label>
+				<TelerikEditor @bind-Value="@editingFlashcard.Front" Height="180px" />
+			</div>
+
+			<div class="editor-section">
+				<label class="editor-label">Reverso — respuesta o definición:</label>
+				<TelerikEditor @bind-Value="@editingFlashcard.Back" Height="180px" />
+			</div>
+
+			<div class="editor-section editor-section-inline">
+				<label class="editor-label">Etiquetas (separadas por coma):</label>
+				<TelerikTextBox @bind-Value="@editingFlashcard.Tags" Placeholder="álgebra, límites, derivadas..." Width="100%" />
+			</div>
+
+			<div class="chart-toggle-row">
+				<TelerikButton ThemeColor="@(showChartBuilder ? "warning" : "base")" Size="@ThemeConstants.Button.Size.Small" OnClick="@ToggleChartBuilder">
+					📊 @(showChartBuilder ? "Quitar Gráfica" : "Agregar Gráfica al Reverso")
+				</TelerikButton>
+			</div>
+
+			@if (showChartBuilder)
+			{
+				<div class="chart-builder">
+					<h4>⚙️ Configurar Gráfica</h4>
+					<div class="chart-builder-grid">
+						<div class="chart-builder-field">
+							<label>Tipo de gráfica:</label>
+							<TelerikDropDownList Data="@chartTypes" @bind-Value="@editingChart.ChartType" Width="140px" />
+						</div>
+						<div class="chart-builder-field">
+							<label>Título:</label>
+							<TelerikTextBox @bind-Value="@editingChart.Title" Placeholder="Título opcional" Width="100%" />
+						</div>
+						<div class="chart-builder-field">
+							<label>Nombre de la serie:</label>
+							<TelerikTextBox @bind-Value="@editingChart.SeriesName" Placeholder="Ej: Frecuencia" Width="100%" />
+						</div>
+						<div class="chart-builder-field chart-builder-field-wide">
+							<label>Categorías (separadas por coma):</label>
+							<TelerikTextBox @bind-Value="@categoriesRaw" Placeholder="Ene, Feb, Mar, Abr..." Width="100%" />
+						</div>
+						<div class="chart-builder-field chart-builder-field-wide">
+							<label>Valores numéricos (separados por coma):</label>
+							<TelerikTextBox @bind-Value="@valuesRaw" Placeholder="10, 25, 15, 30..." Width="100%" />
+						</div>
+					</div>
+					@if (!string.IsNullOrEmpty(chartPreviewError))
+					{
+						<p class="editor-error">@chartPreviewError</p>
+					}
+				</div>
+			}
+
+			@if (!string.IsNullOrEmpty(editorError))
+			{
+				<p class="editor-error">@editorError</p>
+			}
+
+			<div class="editor-actions">
+				<TelerikButton ThemeColor="primary" OnClick="@SaveFlashcard" Enabled="@(!isSaving)">
+					@(isSaving ? "Guardando..." : "Guardar Tarjeta")
+				</TelerikButton>
+				<TelerikButton ThemeColor="base" OnClick="@CancelEdit">Cancelar</TelerikButton>
+			</div>
+		</div>
+	}
+
+	@if (flashcards.Count == 0 && !showEditor)
+	{
+		<div class="no-flashcards">
+			<p>No hay flashcards para esta materia. ¡Crea la primera con el botón <strong>+ Nueva Tarjeta</strong>!</p>
+			<p class="no-flashcards-hint">Las tarjetas soportan texto enriquecido, imágenes, fórmulas LaTeX ($a^2 + b^2 = c^2$) y gráficas interactivas.</p>
+		</div>
+	}
+	else
+	{
+		<div class="flashcards-grid">
+			@foreach (Flashcard card in flashcards)
+			{
+				<div class="fc-card @(IsCardFlipped(card.Id) ? "fc-card-back" : "fc-card-front")" @onclick="@(() => FlipCard(card.Id))">
+					<div class="fc-side-bar">
+						@if (!IsCardFlipped(card.Id))
+						{
+							<span class="fc-label fc-label-front">FRENTE</span>
+						}
+						else
+						{
+							<span class="fc-label fc-label-back">REVERSO</span>
+						}
+					</div>
+
+					<div class="fc-body">
+						<div class="fc-content">
+							@if (!IsCardFlipped(card.Id))
+							{
+								@((MarkupString)card.Front)
+							}
+							else
+							{
+								@((MarkupString)card.Back)
+								@if (parsedCharts.ContainsKey(card.Id))
+								{
+									<div class="fc-chart" @onclick:stopPropagation>
+										<canvas id="chart-@card.Id"></canvas>
+									</div>
+								}
+							}
+						</div>
+
+						@if (!string.IsNullOrEmpty(card.Tags))
+						{
+							<div class="fc-tags">
+								@foreach (string tag in card.Tags.Split(',', StringSplitOptions.RemoveEmptyEntries))
+								{
+									<span class="fc-tag">@tag.Trim()</span>
+								}
+							</div>
+						}
+					</div>
+
+					<div class="fc-footer" @onclick:stopPropagation>
+						@if (!IsCardFlipped(card.Id))
+						{
+							<span class="fc-flip-hint">👆 clic para ver respuesta</span>
+						}
+						else
+						{
+							<span class="fc-flip-hint">👆 clic para ver frente</span>
+						}
+						<div class="fc-action-buttons">
+							<TelerikButton Icon="@SvgIcon.Pencil" ThemeColor="warning" FillMode="@ThemeConstants.Button.FillMode.Flat" Size="@ThemeConstants.Button.Size.Small" OnClick="@(() => EditCard(card))" />
+							<TelerikButton Icon="@SvgIcon.Trash" ThemeColor="error" FillMode="@ThemeConstants.Button.FillMode.Flat" Size="@ThemeConstants.Button.Size.Small" OnClick="@(() => DeleteCard(card))" />
+						</div>
+					</div>
+				</div>
+			}
+		</div>
+	}
+}
