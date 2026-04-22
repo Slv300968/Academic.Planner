@@ -10,6 +10,7 @@ public class StudyResource
 	public string Url { get; set; } = string.Empty;
 	[MaxLength(50)]
 	public string ResourceType { get; set; } = string.Empty;
+	[MaxLength(1000)]
 	public string Notes { get; set; } = string.Empty;
 	public Topic Topic { get; set; }
 }

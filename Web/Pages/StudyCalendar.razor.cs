@@ -1,8 +1,8 @@
-namespace Web.Pages;
+﻿namespace Web.Pages;
 
 public partial class StudyCalendar : ComponentBase
 {
-[Inject] SubjectService SubjectService { get; set; }
+[Inject] public SubjectService SubjectService { get; set; }
 
 private List<SubjectProgress> subjects = new();
 private bool isLoading = true;
@@ -269,64 +269,6 @@ int b = Convert.ToInt32(hex[4..6], 16);
 return $"rgba({r},{g},{b},{alpha})";
 }
 
-private class SubjectPlanItem
-{
-public string SubjectName { get; set; } = string.Empty;
-public string Color { get; set; } = string.Empty;
-public int AssignedDays { get; set; }
-public int PendingTopics { get; set; }
-public double TopicsPerDay { get; set; }
-}
-
-private class PlanColumn
-{
-public string SubjectName { get; set; } = string.Empty;
-public string SubjectShort { get; set; } = string.Empty;
-public string Color { get; set; } = string.Empty;
-public string BackgroundColor { get; set; } = string.Empty;
-public int TotalDays { get; set; }
-public int PendingTopics { get; set; }
-public DateOnly StartDate { get; set; }
-public DateOnly EndDate { get; set; }
-public double WidthPercent { get; set; }
-public List<PlanCard> Cards { get; set; } = new();
-}
-
-private class PlanCard
-{
-public int WeekNumber { get; set; }
-public DateOnly WeekStart { get; set; }
-public DateOnly WeekEnd { get; set; }
-public int DaysCount { get; set; }
-public int Hours { get; set; }
-public double TopicsEstimated { get; set; }
-}
-
-private class GanttRow
-{
-public string SubjectName { get; set; } = string.Empty;
-public string SubjectShort { get; set; } = string.Empty;
-public string Color { get; set; } = string.Empty;
-public int PendingTopics { get; set; }
-public int TotalDays { get; set; }
-public DateOnly StartDate { get; set; }
-public DateOnly EndDate { get; set; }
-public double OffsetPercent { get; set; }
-public double WidthPercent { get; set; }
-}
-
-private class GanttMonth
-{
-public string Label { get; set; } = string.Empty;
-public double WidthPercent { get; set; }
-}
-
-private class GanttWeek
-{
-public string Label { get; set; } = string.Empty;
-public double WidthPercent { get; set; }
-}
-
 private List<StudyDay> BuildInterleavedSchedule(List<SubjectPlanItem> items, List<DateOnly> allStudyDays)
 {
 int totalCount = allStudyDays.Count;
@@ -432,6 +374,64 @@ lower.Contains("biolog") || lower.Contains("calculo") || lower.Contains("estadis
 lower.Contains("logica") || lower.Contains("contab"))
 return "Analitica";
 return "Humanistica";
+}
+
+private class SubjectPlanItem
+{
+public string SubjectName { get; set; } = string.Empty;
+public string Color { get; set; } = string.Empty;
+public int AssignedDays { get; set; }
+public int PendingTopics { get; set; }
+public double TopicsPerDay { get; set; }
+}
+
+private class PlanColumn
+{
+public string SubjectName { get; set; } = string.Empty;
+public string SubjectShort { get; set; } = string.Empty;
+public string Color { get; set; } = string.Empty;
+public string BackgroundColor { get; set; } = string.Empty;
+public int TotalDays { get; set; }
+public int PendingTopics { get; set; }
+public DateOnly StartDate { get; set; }
+public DateOnly EndDate { get; set; }
+public double WidthPercent { get; set; }
+public List<PlanCard> Cards { get; set; } = new();
+}
+
+private class PlanCard
+{
+public int WeekNumber { get; set; }
+public DateOnly WeekStart { get; set; }
+public DateOnly WeekEnd { get; set; }
+public int DaysCount { get; set; }
+public int Hours { get; set; }
+public double TopicsEstimated { get; set; }
+}
+
+private class GanttRow
+{
+public string SubjectName { get; set; } = string.Empty;
+public string SubjectShort { get; set; } = string.Empty;
+public string Color { get; set; } = string.Empty;
+public int PendingTopics { get; set; }
+public int TotalDays { get; set; }
+public DateOnly StartDate { get; set; }
+public DateOnly EndDate { get; set; }
+public double OffsetPercent { get; set; }
+public double WidthPercent { get; set; }
+}
+
+private class GanttMonth
+{
+public string Label { get; set; } = string.Empty;
+public double WidthPercent { get; set; }
+}
+
+private class GanttWeek
+{
+public string Label { get; set; } = string.Empty;
+public double WidthPercent { get; set; }
 }
 
 private class StudyDay

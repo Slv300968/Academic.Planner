@@ -4,12 +4,13 @@ public class Flashcard
 {
 	public int Id { get; set; }
 	public int SubjectId { get; set; }
-	[Required(ErrorMessage = "- El frente de la tarjeta es requerido")]
+	[Required(ErrorMessage = "- El frente de la tarjeta es requerido"), MaxLength(2000)]
 	public string Front { get; set; } = string.Empty;
-	[Required(ErrorMessage = "- El reverso de la tarjeta es requerido")]
+	[Required(ErrorMessage = "- El reverso de la tarjeta es requerido"), MaxLength(2000)]
 	public string Back { get; set; } = string.Empty;
 	[MaxLength(500)]
 	public string Tags { get; set; } = string.Empty;
+	[MaxLength(4000)]
 	public string ChartJson { get; set; } = string.Empty;
 	public int SortOrder { get; set; }
 	public Subject Subject { get; set; }

@@ -2,7 +2,7 @@ namespace Web.Pages;
 
 public partial class Dashboard : ComponentBase
 {
-	[Inject] DashboardService DashboardService { get; set; }
+	[Inject] public DashboardService DashboardService { get; set; }
 
 	private DashboardStats stats;
 	private bool isLoading = true;

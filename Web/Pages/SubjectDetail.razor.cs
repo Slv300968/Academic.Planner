@@ -3,10 +3,10 @@ namespace Web.Pages;
 public partial class SubjectDetail : ComponentBase
 {
 	[Parameter] public int SubjectId { get; set; }
-	[Inject] SubjectService SubjectService { get; set; }
-	[Inject] TopicService TopicService { get; set; }
-	[Inject] StudyResourceService StudyResourceService { get; set; }
-	[Inject] NavigationManager NavigationManager { get; set; }
+	[Inject] public SubjectService SubjectService { get; set; }
+	[Inject] public TopicService TopicService { get; set; }
+	[Inject] public StudyResourceService StudyResourceService { get; set; }
+	[Inject] public NavigationManager NavigationManager { get; set; }
 
 	private Subject subject;
 	private List<Topic> topics = new();

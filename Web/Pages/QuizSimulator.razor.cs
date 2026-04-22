@@ -1,8 +1,8 @@
 namespace Web.Pages;
 
-public partial class QuizSimulator
+public partial class QuizSimulator : ComponentBase
 {
-	[Inject] QuestionService QuestionService { get; set; }
+	[Inject] public QuestionService QuestionService { get; set; }
 
 	private bool quizStarted = false;
 	private bool quizFinished = false;

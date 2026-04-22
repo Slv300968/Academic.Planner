@@ -3,10 +3,10 @@ namespace Web.Pages;
 public partial class Flashcards : ComponentBase
 {
 	[Parameter] public int SubjectId { get; set; }
-	[Inject] SubjectService SubjectService { get; set; }
-	[Inject] FlashcardService FlashcardService { get; set; }
-	[Inject] NavigationManager NavigationManager { get; set; }
-	[Inject] IJSRuntime JSRuntime { get; set; }
+	[Inject] public SubjectService SubjectService { get; set; }
+	[Inject] public FlashcardService FlashcardService { get; set; }
+	[Inject] public NavigationManager NavigationManager { get; set; }
+	[Inject] public IJSRuntime JSRuntime { get; set; }
 
 	private Subject subject;
 	private List<Flashcard> flashcards = new();
