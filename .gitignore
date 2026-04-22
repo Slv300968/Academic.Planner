@@ -48,6 +48,21 @@ Generated\ Files/
 # NUnit
 *.VisualState.xml
 TestResult.xml
+*.opendb
+*.openproj
+
+# Database files and backups
+*.sql
+*.bak
+*.mdf
+*.ldf
+BackupDB.ps1
+RestoreDB.ps1
+RestoreDB2.ps1
+Backups/
+
+# Telerik license (if not needed)
+telerik-license.txt
 nunit-*.xml
 
 # Build Results of an ATL Project
